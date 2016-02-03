@@ -392,7 +392,9 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 			return nil, err
 		}
 	}
+	timeout := time.Duration(5 * time.Second)
 	httpClient := c.HTTPClient
+	httpClient.Timeout = timeout
 	protocol := c.endpointURL.Scheme
 	var u string
 	if protocol == "unix" {
