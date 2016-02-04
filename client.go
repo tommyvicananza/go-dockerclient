@@ -378,6 +378,7 @@ type doOptions struct {
 }
 
 func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, error) {
+	fmt.Println(path)
 	var params io.Reader
 	if doOptions.data != nil || doOptions.forceJSON {
 		buf, err := json.Marshal(doOptions.data)
