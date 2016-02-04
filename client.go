@@ -419,6 +419,7 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 		req.Header.Set(k, v)
 	}
 	resp, err := httpClient.Do(req)
+	fmt.Println(resp)
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") {
 			return nil, ErrConnectionRefused
