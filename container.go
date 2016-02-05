@@ -825,11 +825,14 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	var stats Stats
 	fmt.Println("befores resp")
 	resp, err := c.do("GET", path, doOptions{})
-	fmt.Println(resp.Body)
+	fmt.Println("after resp")
 	if err != nil {
 		return &stats, err
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&stats)
+	resp.Body.Close()
+	if err != nil {
 		fmt.Println("no puedor no puedor")
 		return nil, err
 	}
