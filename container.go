@@ -823,7 +823,9 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 func (c *Client) StatsStatic(id string) (Stats, error) {
 	path := "/containers/" + id + "/stats?=stream=false"
 	var stats Stats
+	fmt.Println("befores resp")
 	resp, err := c.do("GET", path, doOptions{})
+	fmt.Println("after resp")
 	if err != nil {
 		return stats, err
 	}
