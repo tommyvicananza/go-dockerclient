@@ -820,21 +820,21 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 }
 
 // StatsStatic sends container statistics for the given container just once.
-func (c *Client) StatsStatic(id string) (Stats, error) {
+func (c *Client) StatsStatic(id string) (*Stats, error) {
 	path := "/containers/" + id + "/stats?=stream=false"
 	var stats Stats
 	fmt.Println("befores resp")
 	resp, err := c.do("GET", path, doOptions{})
 	fmt.Println("after resp")
 	if err != nil {
-		return stats, err
+		return &stats, err
 	}
 	defer resp.Body.Close()
 	fmt.Println("after defer")
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
-		return stats, err
+		return nil, err
 	}
-	return stats, nil
+	return &stats, nil
 }
 
 // KillContainerOptions represents the set of options that can be used in a
