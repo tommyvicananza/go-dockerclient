@@ -830,6 +830,7 @@ func (c *Client) StatsStatic(id string) (Stats, error) {
 		return stats, err
 	}
 	defer resp.Body.Close()
+	fmt.Println("after defer")
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return stats, err
 	}
