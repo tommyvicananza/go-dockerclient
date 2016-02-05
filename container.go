@@ -832,9 +832,9 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	defer resp.Body.Close()
 	fmt.Println("after defer")
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
-		return nil, err
+		return &stats, err
 	}
-	return &stats, nil
+	return nil, nil
 }
 
 // KillContainerOptions represents the set of options that can be used in a
