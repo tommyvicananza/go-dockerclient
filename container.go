@@ -832,6 +832,7 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	defer resp.Body.Close()
 	fmt.Println("after defer")
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+		fmt.Println("he creado el json machote")
 		return nil, err
 	}
 	return &stats, nil
