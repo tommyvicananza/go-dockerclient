@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -832,17 +831,9 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	var stats Stats
-
-	fmt.Println(resp.Body)
-	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
-	fmt.Println("reader hecho")
-	if err != nil {
-		return nil, err
-	}
-	if err := json.Unmarshal(body, &stats); err != nil {
+	var stats Stats
+	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return nil, err
 	}
 	return &stats, nil
