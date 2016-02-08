@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -822,17 +821,15 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(id string) (*Stats, error) {
-	path := "/containers/" + id + "/stats?=stream=false"
+	path := "/containers/" + id + "/stats"
 	resp, err := c.do("GET", path, doOptions{})
 	fmt.Println("after resp")
 	if err != nil {
 		return nil, err
 	}
 	var stats Stats
-	body, err := ioutil.ReadAll(resp.Body)
-	resp.Body.Close()
-	if err = json.Unmarshal(body, &stats); err != nil {
-		//if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+	defer resp.Body.Close()
+	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		fmt.Println("no puedor no puedor")
 		return nil, err
 	}
