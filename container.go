@@ -829,7 +829,7 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	time.Sleep(5 * time.Second)
 	fmt.Println(resp)
 	var stats Stats
-	defer resp.Body.Close()
+	//defer resp.Body.Close()
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		fmt.Println("no puedor no puedor")
 		return nil, err
