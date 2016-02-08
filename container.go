@@ -821,9 +821,9 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(id string) (*Stats, error) {
-	path := "/containers/" + id + "/stats"
+	path := "/containers/" + id + "/stats?=stream=false"
 	resp, err := c.do("GET", path, doOptions{})
-	fmt.Println("after resp")
+	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
