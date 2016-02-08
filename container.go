@@ -821,7 +821,7 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 
 type StatsStaticOptions struct {
 	ID     string `qs:"-"`
-	Stream bool   `qs:"stream"`
+	Stream bool
 }
 
 // StatsStatic sends container statistics for the given container just once.
