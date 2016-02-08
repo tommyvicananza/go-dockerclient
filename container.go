@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -826,19 +827,16 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	fmt.Println("befores resp")
 	resp, err := c.do("GET", path, doOptions{})
 	fmt.Println("after resp")
-	if resp != nil {
-		defer resp.Body.Close()
-	}
-
-	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
-		fmt.Println("no puedor no puedor")
-		return nil, err
-	}
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(body)
+	//if err := json.NewDecoder(body).Decode(&stats); err != nil {
+	//fmt.Println("no puedor no puedor")
+	//return nil, err
+	//}
 	fmt.Println("he creado el json machote")
 	return &stats, nil
 }
