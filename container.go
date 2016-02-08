@@ -831,10 +831,11 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	if err != nil {
 		return nil, err
 	}
-	time.Sleep(15 * time.Second)
-	defer resp.Body.Close()
+
 	var stats Stats
-	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+	reader := json.NewDecoder(resp.Body)
+	defer resp.Body.Close()
+	if err := reader.Decode(&stats); err != nil {
 		return nil, err
 	}
 	return &stats, nil
