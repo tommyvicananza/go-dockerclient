@@ -821,20 +821,18 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(id string) (*Stats, error) {
-	path := "/containers/" + id + "/stats?=stream=false"
+	path := "/containers/" + id + "/stats?stream=false"
 	resp, err := c.do("GET", path, doOptions{})
 	if err != nil {
 		return nil, err
 	}
 	time.Sleep(5 * time.Second)
 	fmt.Println(resp)
+	defer resp.Body.Close()
 	var stats Stats
-	//defer resp.Body.Close()
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
-		fmt.Println("no puedor no puedor")
 		return nil, err
 	}
-	fmt.Println("he creado el json machote")
 	return &stats, nil
 }
 
