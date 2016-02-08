@@ -823,10 +823,11 @@ func (c *Client) Stats(opts StatsOptions) (retErr error) {
 func (c *Client) StatsStatic(id string) (*Stats, error) {
 	path := "/containers/" + id + "/stats?=stream=false"
 	resp, err := c.do("GET", path, doOptions{})
-	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
+	time.Sleep(5 * time.Second)
+	fmt.Println(resp)
 	var stats Stats
 	defer resp.Body.Close()
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
