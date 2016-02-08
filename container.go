@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -830,9 +831,14 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 		return &stats, err
 	}
 	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&stats)
-	resp.Body.Close()
+
+	objectByte, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		fmt.Println("no puedor no puedor - leer el bodieeeerrrr")
+		return nil, err
+	}
+	if err = json.Unmarshal(objectByte, &stats); err != nil {
+		// if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		fmt.Println("no puedor no puedor")
 		return nil, err
 	}
