@@ -832,6 +832,9 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.Body == nil {
+		return nil, errors.New("Body nil")
+	}
 	objectByte, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println("no puedor no puedor - leer el bodieeeerrrr")
