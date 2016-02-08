@@ -835,6 +835,7 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 
 	var stats Stats
 
+	fmt.Println(resp)
 	body, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	fmt.Println("reader hecho")
