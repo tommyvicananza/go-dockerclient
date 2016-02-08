@@ -832,7 +832,7 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println(body)
+	fmt.Println(string(body))
 	//if err := json.NewDecoder(body).Decode(&stats); err != nil {
 	//fmt.Println("no puedor no puedor")
 	//return nil, err
