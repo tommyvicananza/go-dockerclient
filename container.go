@@ -835,6 +835,7 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	var stats Stats
 	reader := json.NewDecoder(resp.Body)
 	defer resp.Body.Close()
+	fmt.Println("reader hecho")
 	if err := reader.Decode(&stats); err != nil {
 		return nil, err
 	}
