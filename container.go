@@ -826,6 +826,11 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	fmt.Println("befores resp")
 	resp, err := c.do("GET", path, doOptions{})
 	fmt.Println("after resp")
+	if resp != nil {
+		defer resp.Body.Close()
+	}
+
+	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
