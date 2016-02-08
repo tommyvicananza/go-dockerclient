@@ -832,7 +832,6 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 		return nil, err
 	}
 	time.Sleep(5 * time.Second)
-	fmt.Println(resp)
 	defer resp.Body.Close()
 	var stats Stats
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
