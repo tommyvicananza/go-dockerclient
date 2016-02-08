@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -832,6 +833,8 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(body)
 	var stats Stats
 	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return nil, err
