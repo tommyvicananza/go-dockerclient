@@ -833,6 +833,7 @@ func (c *Client) StatsStatic(id string) (*Stats, error) {
 	defer resp.Body.Close()
 
 	objectByte, err := ioutil.ReadAll(resp.Body)
+	fmt.Println(err)
 	fmt.Println("he hecho lo del objectbyte")
 	if err = json.Unmarshal(objectByte, &stats); err != nil {
 		//if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
