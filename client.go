@@ -736,6 +736,7 @@ func (c *Client) unixClient() *http.Client {
 		Dial: func(network, addr string) (net.Conn, error) {
 			return c.Dialer.Dial("unix", socketPath)
 		},
+		DisableKeepAlives: true,
 	}
 	cleanhttp.SetTransportFinalizer(tr)
 	c.unixHTTPClient = &http.Client{Transport: tr}
