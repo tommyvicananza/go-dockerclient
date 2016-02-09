@@ -833,7 +833,8 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 	var stats Stats
-	if err := json.NewDecoder(io.LimitReader(resp.Body, 10240)).Decode(&stats); err != nil {
+
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1048576)).Decode(&stats); err != nil {
 		return nil, err
 	}
 	return &stats, nil
