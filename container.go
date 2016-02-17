@@ -835,6 +835,9 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	defer resp.Body.Close()
 	var stats Stats
 	fmt.Println("Antes")
+	if resp.Body != nil {
+		fmt.Println("no es nulo")
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("Hecho el readall")
 	if err != nil {
