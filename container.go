@@ -827,7 +827,7 @@ type StatsStaticOptions struct {
 
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
-	path := "/containers/" + opts.ID + "/stats" + "?" + queryString(opts)
+	path := "/containers/" + opts.ID + "/stats" + "?stream=false" //+ queryString(opts)
 	resp, err := c.do("GET", path, doOptions{})
 	if err != nil {
 		return nil, err
