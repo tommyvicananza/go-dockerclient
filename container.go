@@ -840,9 +840,9 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	//}
 	body, err := ioutil.ReadAll(resp.Body)
 	//fmt.Println("Hecho el readall")
-	//if err != nil {
-	//return nil, err
-	//}
+	if err != nil {
+		return nil, err
+	}
 	if err := json.Unmarshal(body, &stats); err != nil {
 		//fmt.Println("despues del unmarshal")
 		//if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
