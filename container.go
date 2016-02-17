@@ -839,7 +839,7 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	//fmt.Println(resp.Body)
 	//}
 	body, err := ioutil.ReadAll(resp.Body)
-	//fmt.Println("Hecho el readall")
+	fmt.Println("Hecho el readall")
 	if err != nil {
 		return nil, err
 	}
