@@ -838,6 +838,18 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	if resp.Body != nil {
 		fmt.Println(resp.Body)
 	}
+	i := 0
+	for {
+		b := make([]byte, 1)
+		n, err := resp.Body.Read(b)
+		fmt.Println(n)
+		fmt.Println(err)
+		if err != nil {
+			break
+		}
+		fmt.Println(i)
+		i++
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("Hecho el readall")
 	if err != nil {
