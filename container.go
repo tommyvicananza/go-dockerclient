@@ -834,14 +834,18 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 	var stats Stats
+	fmt.Println("Antes")
 	body, err := ioutil.ReadAll(resp.Body)
+	fmt.Println("Hecho el readall")
 	if err != nil {
 		return nil, err
 	}
 	if err := json.Unmarshal(body, &stats); err != nil {
+		fmt.Println("despues del unmarshal")
 		//if err := json.NewDecoder(io.LimitReader(resp.Body, 1048576)).Decode(&stats); err != nil {
 		return nil, err
 	}
+	fmt.Println("despues del unmarshal")
 	return &stats, nil
 }
 
