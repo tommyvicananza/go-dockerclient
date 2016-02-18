@@ -856,7 +856,7 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 	var stats Stats
-	var b *CustomBuffer
+	var b CustomBuffer
 	const MinRead = 512
 	for {
 		fmt.Println("not even here")
