@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -882,13 +881,13 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 			return nil, e
 		}
 	}
-	fmt.Println(b)
-	body, err := ioutil.ReadAll(resp.Body)
-	fmt.Println("Hecho el readall")
-	if err != nil {
-		return nil, err
-	}
-	if err := json.Unmarshal(body, &stats); err != nil {
+	//fmt.Println(b)
+	//body, err := ioutil.ReadAll(resp.Body)
+	//fmt.Println("Hecho el readall")
+	//if err != nil {
+	//return nil, err
+	//}
+	if err := json.Unmarshal(b.buf, &stats); err != nil {
 		//fmt.Println("despues del unmarshal")
 		//if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return nil, err
