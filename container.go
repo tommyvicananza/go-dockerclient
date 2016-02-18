@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // ErrContainerAlreadyExists is the error returned by CreateContainer when the
@@ -825,6 +826,27 @@ type StatsStaticOptions struct {
 	Stream bool   `qs:"stream"`
 }
 
+type CustomBuffer struct {
+	buf       []byte            // contents are the bytes buf[off : len(buf)]
+	off       int               // read at &buf[off], write at &buf[len(buf)]
+	runeBytes [utf8.UTFMax]byte // avoid allocation of slice on each WriteByte or Rune
+	bootstrap [64]byte          // memory to hold first slice; helps small buffers (Printf) avoid allocation.
+	lastRead  readOp            // last read operation, so that Unread* can work correctly.
+}
+type readOp int
+
+func makeSlice(n int) []byte {
+	// If the make fails, give a known error.
+	defer func() {
+		if recover() != nil {
+			panic(ErrTooLarge)
+		}
+	}()
+	return make([]byte, n)
+}
+
+var ErrTooLarge = errors.New("bytes.Buffer: too large")
+
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	path := "/containers/" + opts.ID + "/stats" + "?stream=false" //+ queryString(opts)
@@ -832,9 +854,33 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(resp.ContentLength)
 	defer resp.Body.Close()
 	var stats Stats
+	var b *CustomBuffer
+	const MinRead = 512
+	for {
+		if free := cap(b.buf) - len(b.buf); free < MinRead {
+			// not enough space at end
+			newBuf := b.buf
+			if b.off+free < MinRead {
+				// not enough space using beginning of buffer;
+				// double buffer capacity
+				newBuf = makeSlice(2*cap(b.buf) + MinRead)
+			}
+			copy(newBuf, b.buf[b.off:])
+			b.buf = newBuf[:len(b.buf)-b.off]
+			b.off = 0
+		}
+		m, e := resp.Body.Read(b.buf[len(b.buf):cap(b.buf)])
+		b.buf = b.buf[0 : len(b.buf)+m]
+		if e == io.EOF {
+			break
+		}
+		if e != nil {
+			return nil, e
+		}
+	}
+	fmt.Println(b)
 	body, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("Hecho el readall")
 	if err != nil {
