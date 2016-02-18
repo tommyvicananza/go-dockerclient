@@ -834,11 +834,12 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 	var stats Stats
-	//fmt.Println("Antes")
-	//if resp.Body != nil {
-	//fmt.Println(resp.Body)
-	//}
-	body, err := ioutil.ReadAll(io.LimitReader(resp.Body, 8096))
+	b := make([]byte, 8096)
+	_, err = io.ReadFull(resp.Body, b)
+	if err == nil {
+		return nil, nil
+	}
+	body, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("Hecho el readall")
 	if err != nil {
 		return nil, err
