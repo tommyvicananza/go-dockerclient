@@ -872,12 +872,10 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 				b.buf = newBuf[:len(b.buf)-b.off]
 				b.off = 0
 			}
-			fmt.Println("Antes del error")
 			if resp.Body == nil {
-				break
+				return nil, nil
 			}
 			m, e := resp.Body.Read(b.buf[len(b.buf):cap(b.buf)])
-			fmt.Printf("El error al hacer el read es %s\n", e)
 			b.buf = b.buf[0 : len(b.buf)+m]
 			if e == io.EOF {
 				break
@@ -888,7 +886,7 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 			i++
 		} else {
 			fmt.Println("Hasta aquí hemos llegado hombre ya!")
-			break
+			return nil, nil
 		}
 	}
 	fmt.Println(i)
