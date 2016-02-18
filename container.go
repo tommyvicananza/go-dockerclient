@@ -832,6 +832,7 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(resp.ContentLength)
 	defer resp.Body.Close()
 	var stats Stats
 	b := make([]byte, 8096)
