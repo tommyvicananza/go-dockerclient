@@ -835,11 +835,6 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	fmt.Println(resp.ContentLength)
 	defer resp.Body.Close()
 	var stats Stats
-	b := make([]byte, 8096)
-	_, err = io.ReadFull(resp.Body, b)
-	if err == nil {
-		return nil, nil
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	fmt.Println("Hecho el readall")
 	if err != nil {
