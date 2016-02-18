@@ -859,27 +859,32 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	const MinRead = 512
 	i := 0
 	for {
-		if free := cap(b.buf) - len(b.buf); free < MinRead {
-			// not enough space at end
-			newBuf := b.buf
-			if b.off+free < MinRead {
-				// not enough space using beginning of buffer;
-				// double buffer capacity
-				newBuf = makeSlice(2*cap(b.buf) + MinRead)
+		if i < 10 {
+			if free := cap(b.buf) - len(b.buf); free < MinRead {
+				// not enough space at end
+				newBuf := b.buf
+				if b.off+free < MinRead {
+					// not enough space using beginning of buffer;
+					// double buffer capacity
+					newBuf = makeSlice(2*cap(b.buf) + MinRead)
+				}
+				copy(newBuf, b.buf[b.off:])
+				b.buf = newBuf[:len(b.buf)-b.off]
+				b.off = 0
 			}
-			copy(newBuf, b.buf[b.off:])
-			b.buf = newBuf[:len(b.buf)-b.off]
-			b.off = 0
-		}
-		m, e := resp.Body.Read(b.buf[len(b.buf):cap(b.buf)])
-		b.buf = b.buf[0 : len(b.buf)+m]
-		if e == io.EOF {
+			m, e := resp.Body.Read(b.buf[len(b.buf):cap(b.buf)])
+			b.buf = b.buf[0 : len(b.buf)+m]
+			if e == io.EOF {
+				break
+			}
+			if e != nil {
+				return nil, e
+			}
+			i++
+		} else {
+			fmt.Println("Hasta aquí hemos llegado hombre ya!")
 			break
 		}
-		if e != nil {
-			return nil, e
-		}
-		i++
 	}
 	fmt.Println(i)
 	//fmt.Println(b)
