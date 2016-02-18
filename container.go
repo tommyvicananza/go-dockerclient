@@ -859,7 +859,9 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	var b *CustomBuffer
 	const MinRead = 512
 	for {
+		fmt.Println("not even here")
 		if free := cap(b.buf) - len(b.buf); free < MinRead {
+			fmt.Println("not even here2")
 			// not enough space at end
 			newBuf := b.buf
 			if b.off+free < MinRead {
