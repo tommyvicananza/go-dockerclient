@@ -428,6 +428,62 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 	return resp, nil
 }
 
+func (c *Client) doCustom(method, path string, doOptions doOptions) ([]byte, error) {
+	var params io.Reader
+	if doOptions.data != nil || doOptions.forceJSON {
+		buf, err := json.Marshal(doOptions.data)
+		if err != nil {
+			return nil, err
+		}
+		params = bytes.NewBuffer(buf)
+	}
+	if path != "/version" && !c.SkipServerVersionCheck && c.expectedAPIVersion == nil {
+		err := c.checkAPIVersion()
+		if err != nil {
+			return nil, err
+		}
+	}
+	httpClient := c.HTTPClient
+	protocol := c.endpointURL.Scheme
+	var u string
+	if protocol == "unix" {
+		httpClient = c.unixClient()
+		u = c.getFakeUnixURL(path)
+	} else {
+		u = c.getURL(path)
+	}
+	req, err := http.NewRequest(method, u, params)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("User-Agent", userAgent)
+	if doOptions.data != nil {
+		req.Header.Set("Content-Type", "application/json")
+	} else if method == "POST" {
+		req.Header.Set("Content-Type", "plain/text")
+	}
+
+	for k, v := range doOptions.headers {
+		req.Header.Set(k, v)
+	}
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		if strings.Contains(err.Error(), "connection refused") {
+			return nil, ErrConnectionRefused
+		}
+		return nil, err
+	}
+	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
+		return nil, newError(resp)
+	}
+	rbytes, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	return rbytes, nil
+}
+
 type streamOptions struct {
 	setRawTerminal bool
 	rawJSONStream  bool
