@@ -29,6 +29,8 @@ import (
 	"strings"
 	"time"
 
+	gorhttp "github.com/tommyvicananza/http"
+
 	"github.com/fsouza/go-dockerclient/external/github.com/docker/docker/opts"
 	"github.com/fsouza/go-dockerclient/external/github.com/docker/docker/pkg/homedir"
 	"github.com/fsouza/go-dockerclient/external/github.com/docker/docker/pkg/stdcopy"
@@ -130,6 +132,7 @@ func (version APIVersion) compare(other APIVersion) int {
 type Client struct {
 	SkipServerVersionCheck bool
 	HTTPClient             *http.Client
+	GorillaClient          *gorhttp.Client
 	TLSConfig              *tls.Config
 	Dialer                 *net.Dialer
 
@@ -428,60 +431,25 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 	return resp, nil
 }
 
-func (c *Client) doCustom(method, path string, doOptions doOptions) ([]byte, error) {
+func (c *Client) doGorilla(method, path string) (io.ReadCloser, error) {
 	var params io.Reader
-	if doOptions.data != nil || doOptions.forceJSON {
-		buf, err := json.Marshal(doOptions.data)
-		if err != nil {
-			return nil, err
-		}
-		params = bytes.NewBuffer(buf)
-	}
-	if path != "/version" && !c.SkipServerVersionCheck && c.expectedAPIVersion == nil {
-		err := c.checkAPIVersion()
-		if err != nil {
-			return nil, err
-		}
-	}
-	httpClient := c.HTTPClient
+
+	httpClient := c.GorillaClient
 	protocol := c.endpointURL.Scheme
 	var u string
 	if protocol == "unix" {
-		httpClient = c.unixClient()
 		u = c.getFakeUnixURL(path)
-	} else {
-		u = c.getURL(path)
 	}
-	req, err := http.NewRequest(method, u, params)
+	headers := map[string][]string{
+		"User-Agent": []string{"go-dockerclient"},
+	}
+	fmt.Println(u)
+	_, _, body, err := httpClient.DoUnix(method, u, headers, params)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("User-Agent", userAgent)
-	if doOptions.data != nil {
-		req.Header.Set("Content-Type", "application/json")
-	} else if method == "POST" {
-		req.Header.Set("Content-Type", "plain/text")
-	}
-
-	for k, v := range doOptions.headers {
-		req.Header.Set(k, v)
-	}
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		if strings.Contains(err.Error(), "connection refused") {
-			return nil, ErrConnectionRefused
-		}
-		return nil, err
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 400 {
-		return nil, newError(resp)
-	}
-	rbytes, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-	return rbytes, nil
+	fmt.Println("hola")
+	return body, nil
 }
 
 type streamOptions struct {
