@@ -449,7 +449,7 @@ func (c *Client) doGorilla(method, path string) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("hola")
+	body.Close()
 	return body, nil
 }
 
