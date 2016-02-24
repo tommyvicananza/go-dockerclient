@@ -196,6 +196,7 @@ func NewVersionedClient(endpoint string, apiVersionString string) (*Client, erro
 		}
 	}
 	return &Client{
+		GorillaClient:       &gorhttp.DefaultClient,
 		HTTPClient:          cleanhttp.DefaultClient(),
 		Dialer:              &net.Dialer{},
 		endpoint:            endpoint,
