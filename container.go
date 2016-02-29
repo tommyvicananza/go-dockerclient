@@ -850,6 +850,7 @@ var ErrTooLarge = errors.New("bytes.Buffer: too large")
 func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	path := "/containers/" + opts.ID + "/stats" + "?stream=false" //+ queryString(opts)
 	resp, err := c.do("GET", path, doOptions{})
+	fmt.Println("do me ha devuelto la resp")
 	if err != nil {
 		return nil, err
 	}
