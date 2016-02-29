@@ -29,8 +29,6 @@ import (
 	"strings"
 	"time"
 
-	gorhttp "github.com/tommyvicananza/http"
-
 	"github.com/fsouza/go-dockerclient/external/github.com/docker/docker/opts"
 	"github.com/fsouza/go-dockerclient/external/github.com/docker/docker/pkg/homedir"
 	"github.com/fsouza/go-dockerclient/external/github.com/docker/docker/pkg/stdcopy"
@@ -132,7 +130,6 @@ func (version APIVersion) compare(other APIVersion) int {
 type Client struct {
 	SkipServerVersionCheck bool
 	HTTPClient             *http.Client
-	GorillaClient          *gorhttp.Client
 	TLSConfig              *tls.Config
 	Dialer                 *net.Dialer
 
@@ -196,7 +193,6 @@ func NewVersionedClient(endpoint string, apiVersionString string) (*Client, erro
 		}
 	}
 	return &Client{
-		GorillaClient:       &gorhttp.DefaultClient,
 		HTTPClient:          cleanhttp.DefaultClient(),
 		Dialer:              &net.Dialer{},
 		endpoint:            endpoint,
@@ -430,27 +426,6 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 		return nil, newError(resp)
 	}
 	return resp, nil
-}
-
-func (c *Client) doGorilla(method, path string) (io.ReadCloser, error) {
-	var params io.Reader
-
-	httpClient := c.GorillaClient
-	protocol := c.endpointURL.Scheme
-	var u string
-	if protocol == "unix" {
-		u = c.getFakeUnixURL(path)
-	}
-	headers := map[string][]string{
-		"User-Agent": []string{"go-dockerclient"},
-	}
-	fmt.Println(u)
-	_, _, body, err := httpClient.DoUnix(method, u, headers, params)
-	if err != nil {
-		return nil, err
-	}
-	body.Close()
-	return body, nil
 }
 
 type streamOptions struct {

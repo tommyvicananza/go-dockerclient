@@ -834,6 +834,18 @@ type CustomBuffer struct {
 }
 type readOp int
 
+func makeSlice(n int) []byte {
+	// If the make fails, give a known error.
+	defer func() {
+		if recover() != nil {
+			panic(ErrTooLarge)
+		}
+	}()
+	return make([]byte, n)
+}
+
+var ErrTooLarge = errors.New("bytes.Buffer: too large")
+
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	path := "/containers/" + opts.ID + "/stats" + "?stream=false" //+ queryString(opts)
@@ -843,9 +855,62 @@ func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	}
 	defer resp.Body.Close()
 	var stats Stats
-	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+	var b CustomBuffer
+	const MinRead = 512
+	i := 0
+	for {
+		if i < 10 {
+			if free := cap(b.buf) - len(b.buf); free < MinRead {
+				// not enough space at end
+				fmt.Println("Crea un new buffer")
+				newBuf := b.buf
+				if b.off+free < MinRead {
+					fmt.Println("Es b.off + free < MinRead")
+					// not enough space using beginning of buffer;
+					// double buffer capacity
+					newBuf = makeSlice(2*cap(b.buf) + MinRead)
+				}
+				fmt.Println("Copia lo que había en el antiguo al nuevo")
+				copy(newBuf, b.buf[b.off:])
+				fmt.Println("Lo guarda en b.buf")
+				b.buf = newBuf[:len(b.buf)-b.off]
+				b.off = 0
+			}
+			if resp.Body == nil {
+				fmt.Println("resp.Body es nil")
+				return nil, nil
+			}
+			fmt.Println("Lee resp.Body")
+			m, e := resp.Body.Read(b.buf[len(b.buf):cap(b.buf)])
+			fmt.Println("Lo ha leído y guarda el delta en b.buf")
+			b.buf = b.buf[0 : len(b.buf)+m]
+			if e == io.EOF {
+				fmt.Println("Es EOF y rompe el bucle")
+				break
+			}
+			if e != nil {
+				fmt.Println("Hay error y sale de la func")
+				return nil, e
+			}
+			i++
+		} else {
+			fmt.Println("Hasta aquí hemos llegado hombre ya!")
+			return nil, nil
+		}
+	}
+	fmt.Println(i)
+	//fmt.Println(b)
+	//body, err := ioutil.ReadAll(resp.Body)
+	//fmt.Println("Hecho el readall")
+	//if err != nil {
+	//return nil, err
+	//}
+	if err := json.Unmarshal(b.buf, &stats); err != nil {
+		//fmt.Println("despues del unmarshal")
+		//if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return nil, err
 	}
+	//fmt.Println("despues del unmarshal")
 	return &stats, nil
 }
 
