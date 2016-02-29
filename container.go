@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -835,33 +834,18 @@ type CustomBuffer struct {
 }
 type readOp int
 
-func makeSlice(n int) []byte {
-	// If the make fails, give a known error.
-	defer func() {
-		if recover() != nil {
-			panic(ErrTooLarge)
-		}
-	}()
-	return make([]byte, n)
-}
-
-var ErrTooLarge = errors.New("bytes.Buffer: too large")
-
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	path := "/containers/" + opts.ID + "/stats" + "?stream=false" //+ queryString(opts)
-	body, err := c.doGorilla("GET", path)
+	resp, err := c.do("GET", path, doOptions{})
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 	var stats Stats
-	b, err := ioutil.ReadAll(body)
-	if err := json.Unmarshal(b, &stats); err != nil {
-		//fmt.Println("despues del unmarshal")
-		//if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&stats); err != nil {
 		return nil, err
 	}
-	//fmt.Println("despues del unmarshal")
 	return &stats, nil
 }
 
