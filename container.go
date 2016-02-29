@@ -849,6 +849,7 @@ var ErrTooLarge = errors.New("bytes.Buffer: too large")
 // StatsStatic sends container statistics for the given container just once.
 func (c *Client) StatsStatic(opts StatsStaticOptions) (*Stats, error) {
 	path := "/containers/" + opts.ID + "/stats" + "?stream=false" //+ queryString(opts)
+	fmt.Println("Entro en StatsStatic")
 	resp, err := c.do("GET", path, doOptions{})
 	fmt.Println("do me ha devuelto la resp")
 	if err != nil {
