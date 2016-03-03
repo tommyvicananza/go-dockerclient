@@ -415,7 +415,9 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 	for k, v := range doOptions.headers {
 		req.Header.Set(k, v)
 	}
+	fmt.Println("Llamo al do exterior")
 	resp, err := httpClient.Do(req)
+	fmt.Println("Obtenida la resp exterior")
 	if err != nil {
 		if strings.Contains(err.Error(), "connection refused") {
 			return nil, ErrConnectionRefused
