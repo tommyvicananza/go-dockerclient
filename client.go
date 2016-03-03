@@ -393,6 +393,9 @@ func (c *Client) do(method, path string, doOptions doOptions) (*http.Response, e
 		}
 	}
 	httpClient := c.HTTPClient
+	fmt.Println("Antes: ", httpClient.Timeout)
+	httpClient.Timeout = 1
+	fmt.Println("Despues: ", httpClient.Timeout)
 	protocol := c.endpointURL.Scheme
 	var u string
 	if protocol == "unix" {
